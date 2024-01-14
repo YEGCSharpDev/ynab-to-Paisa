@@ -103,11 +103,8 @@
         /// <param name="useClear">Whether or not to include the clear fields (*/!) in output</param>
         /// <param name="culture">The culture to use when parsing the amounts</param>
         /// <returns>A list of transactions with their own line item(s) depending on if the transaction is a split or not</returns>
-        public static IList<Transaction> GroupLineItems(
-            IEnumerable<CSVLineItem> lineItems,
-            IDictionary<string, string> accountTypes,
-            bool useClear,
-            CultureInfo culture) {
+        public static IList<Transaction> GroupLineItems(IEnumerable<CSVLineItem> lineItems,IDictionary<string, string> accountTypes,bool useClear,CultureInfo culture) 
+        {
             IList<Transaction> groupedTransactions = new List<Transaction>();
             IDictionary<int, CSVLineItem> splitTransactions = new Dictionary<int, CSVLineItem>();
             int splitNumber = 0;
@@ -132,21 +129,27 @@
             //// this code has to handle multiple splits from different transactions next to eachother
             //// e.g. Split (1/2), Split (2/2), Split (1/3), Split (2/3), Split (3/3)
             //// It does this by noticing if the split numerator has been seen before
-            foreach (var record in lineItems) {
-                if (record.Memo.Contains("(Split")) {
+            foreach (var record in lineItems)
+            {
+                if (record.Memo.Contains("(Split"))
+                {
                     Match m = Regex.Match(record.Memo, @"\(Split (\d+)/(\d+)");
-                    if (!m.Success || m.Groups.Count != 3) {
+                    if (!m.Success || m.Groups.Count != 3)
+                    {
                         throw new Exception("Unexpected split memo!");
                     }
 
                     splitNumber = int.Parse(m.Groups[1].Value);
-                    if (!splitTransactions.Any()) {
+                    if (!splitTransactions.Any())
+                    {
                         currentNumberOfSplits = int.Parse(m.Groups[2].Value);
                     }
 
-                    if (splitTransactions.ContainsKey(splitNumber)) {
+                    if (splitTransactions.ContainsKey(splitNumber))
+                    {
                         // back to back splits, clear existing splits
-                        if (splitTransactions.Count != currentNumberOfSplits) {
+                        if (splitTransactions.Count != currentNumberOfSplits)
+                        {
                             throw new Exception("Missing a split!");
                         }
 
@@ -157,7 +160,9 @@
                     }
 
                     splitTransactions.Add(splitNumber, record);
-                } else {
+                }
+                else
+                {
                     appendBufferedSplitTransactions();
                     groupedTransactions.Add(new Transaction(accountTypes, useClear, culture, record));
                 }

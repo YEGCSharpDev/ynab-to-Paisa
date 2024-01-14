@@ -4,6 +4,7 @@
     using System.Globalization;
     using System.Linq;
     using System.Text;
+    using System.Text.RegularExpressions;
     using CsvHelper.Configuration.Attributes;
 
     /// <summary>
@@ -18,24 +19,20 @@
         /// <param name="culture">The culture to use when parsing the amounts</param>
         /// <param name="lineItems">A list of line items to include in the transaction</param>
         public Transaction(
-            IDictionary<string, string> accountTypes,
-            bool useClear,
-            CultureInfo culture,
-            IList<CSVLineItem> lineItems) : this(accountTypes, useClear, culture) {
+            IDictionary<string, string> accountTypes,bool useClear,CultureInfo culture,IList<CSVLineItem> lineItems) : this(accountTypes, useClear, culture) {
             if (lineItems == null) {
                 throw new ArgumentNullException(nameof(lineItems), "Line items are required.");
             } else if (!lineItems.Any()) {
                 throw new Exception("No transactions!");
-            } else if (lineItems.GroupBy(t => new { t.Flag, t.CheckNumber, t.Date, t.Cleared, t.RunningBalance }).Count() != 1) {
+            } else if (lineItems.GroupBy(t => new { t.Flag,  t.Date, t.Cleared}).Count() != 1) {
                 throw new Exception("These should all be the same.");
             }
 
             var firstRecord = lineItems.First();
             this.Flag = firstRecord.Flag;
-            this.CheckNumber = firstRecord.CheckNumber;
             this.Date = firstRecord.Date;
             this.Cleared = firstRecord.Cleared;
-            this.RunningBalance = firstRecord.RunningBalance;
+            
             foreach (var record in lineItems) {
                 this.LineItems.Add(new LineItem(record, this.Culture));
             }
@@ -61,22 +58,22 @@
         /// <param name="useClear">Whether or not to include the clear fields (*/!) in output</param>
         /// <param name="culture">The culture to use when parsing the amounts</param>
         /// <param name="lineItem">A line items to include in the transaction</param>
-        public Transaction(
-            IDictionary<string, string> accountTypes,
-            bool useClear,
-            CultureInfo culture,
-            CSVLineItem lineItem) : this(accountTypes, useClear, culture) {
+        public Transaction(IDictionary<string, string> accountTypes,bool useClear,CultureInfo culture,CSVLineItem lineItem) : this(accountTypes, useClear, culture)
+        {
             this.Flag = lineItem.Flag;
-            this.CheckNumber = lineItem.CheckNumber;
+
             this.Date = lineItem.Date;
             this.Cleared = lineItem.Cleared;
-            this.RunningBalance = lineItem.RunningBalance;
+
             LineItem transactionLineItem = new LineItem(lineItem, this.Culture);
             this.LineItems.Add(transactionLineItem);
 
-            if (!transactionLineItem.HasOutflow && !transactionLineItem.HasInflow) {
+            if (!transactionLineItem.HasOutflow && !transactionLineItem.HasInflow)
+            {
                 Console.WriteLine("Warning: record doesn't transfer any money.");
-            } else if (transactionLineItem.HasOutflow && transactionLineItem.HasInflow) {
+            }
+            else if (transactionLineItem.HasOutflow && transactionLineItem.HasInflow)
+            {
                 Console.WriteLine("A single transaction has both inflow and outflow.");
             }
         }
@@ -142,6 +139,8 @@
         /// </summary>
         public decimal TotalAmount => this.LineItems.Any() ? this.LineItems.Sum(t => t.InflowAmount - t.OutflowAmount) : 0M;
 
+        public string Total => this.TotalAmount.ToString(CultureInfo.InvariantCulture)+ " " + this.LineItems.FirstOrDefault().RegionInfo.ISOCurrencySymbol;
+
         /// <summary>
         /// Gets the list of line items in the transaction
         /// </summary>
@@ -151,8 +150,12 @@
         /// The transaction as it will appear in the ledger
         /// </summary>
         /// <returns>A string representation of the transaction</returns>
-        public override string ToString() {
-            NumberFormatInfo pattern = (NumberFormatInfo)this.Culture.NumberFormat.Clone();
+        public override string ToString() 
+        {
+            CultureInfo defaultCulture = new CultureInfo("en-US");
+            NumberFormatInfo pattern = (NumberFormatInfo)defaultCulture.NumberFormat.Clone();
+            pattern.CurrencySymbol = string.Empty;
+
             pattern.CurrencyNegativePattern = 1;
             StringBuilder sb = new StringBuilder();
             bool hasMultipleLineItems = this.LineItems.Count > 1;
@@ -185,7 +188,7 @@
             }
 
             string accountType = this.AccountTypes[this.LineItems.First().Account];
-            sb.AppendLine($" {accountType}:{this.LineItems.First().Account}  {this.TotalAmount.ToString("C", pattern)}");
+            sb.AppendLine($" {accountType}:{this.LineItems.First().Account}  {this.TotalAmount.ToString("C", pattern)} {this.LineItems.FirstOrDefault().IsoCurrency}");
 
             foreach (var transaction in this.LineItems) {
                 // don't include the memo only one line item because it's included below the payee line
@@ -197,17 +200,17 @@
                 memo = !hasMemo ? null : $"{(hasMultiplePayees ? "," : string.Empty)} {memo}";
 
                 if (transaction.HasInflow) {
-                    sb.AppendLine($" Income:{transaction.Payee}  -{transaction.InflowAmount.ToString("C", pattern)}");
+                    sb.AppendLine($" Income:{transaction.Payee}  -{transaction.InflowAmount.ToString("C", pattern)} {this.LineItems.FirstOrDefault().IsoCurrency}");
                     if (hasMultipleAccounts) {
-                        sb.AppendLine($" {accountType}:{transaction.Account}  {transaction.InflowAmount.ToString("C", pattern)}");
+                        sb.AppendLine($" {accountType}:{transaction.Account}  {transaction.Inflow}");
                     }
                 } else if (isTransfer) {
                     // transfer payee is an account
                     string transferPayee = transaction.Payee.Replace("Transfer : ", string.Empty);
                     string transferAccountType = this.AccountTypes[transferPayee];
-                    sb.AppendLine($" {transferAccountType}:{transferPayee}  {transaction.OutflowAmount.ToString("C", pattern)}");
+                    sb.AppendLine($" {transferAccountType}:{transferPayee}  {transaction.OutflowAmount.ToString("C", pattern)} {this.LineItems.FirstOrDefault().IsoCurrency}");
                 } else {
-                    sb.AppendLine($" Expenses:{transaction.MasterCategory}:{transaction.SubCategory}  {transaction.Outflow}{commentPrefix}{payeeComment}{memo}");
+                    sb.AppendLine($" Expenses:{transaction.MasterCategory.Trim()}:{transaction.SubCategory.Trim()}  {transaction.OutflowAmount.ToString("C", pattern)} {this.LineItems.FirstOrDefault().IsoCurrency}{commentPrefix}{payeeComment}{memo}");
                 }
             }
 

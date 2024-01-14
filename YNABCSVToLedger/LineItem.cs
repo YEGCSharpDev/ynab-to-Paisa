@@ -13,16 +13,16 @@
         /// <param name="culture">The culture to use when parsing the amounts</param>
         public LineItem(CSVLineItem lineItem, CultureInfo culture) {
             this.CultureInfo = culture;
-
+            this.RegionInfo = new RegionInfo(culture.Name);
             this.Account = lineItem.Account;
             this.Payee = lineItem.Payee;
             this.Category = lineItem.Category;
-            this.Inflow = string.IsNullOrWhiteSpace(lineItem.Inflow) ? string.Empty : lineItem.Inflow.Trim();
-            this.MasterCategory = lineItem.MasterCategory;
+            this.Inflow = string.IsNullOrWhiteSpace(lineItem.Inflow) ? string.Empty : lineItem.Inflow.Trim().Replace(this.RegionInfo.CurrencySymbol, "");
+            this.MasterCategory = lineItem.MasterCategory.Trim();
             this.Memo = lineItem.Memo;
-            this.Outflow = string.IsNullOrWhiteSpace(lineItem.Outflow) ? string.Empty : lineItem.Outflow.Trim();
+            this.Outflow = string.IsNullOrWhiteSpace(lineItem.Outflow) ? string.Empty : lineItem.Outflow.Trim().Replace(this.RegionInfo.CurrencySymbol, "");
             this.Payee = lineItem.Payee;
-            this.SubCategory = lineItem.SubCategory;
+            this.SubCategory = lineItem.SubCategory.Trim();
 
             // YNAB appends a . for currency symbols it abbreviates, e.g. 12,48ден.
             this.Inflow = this.Inflow.TrimEnd().TrimEnd(new char[] { '.' });
@@ -99,7 +99,7 @@
         /// Gets or sets the outflow amount as a decimal
         /// </summary>
         /// <remarks>For some currencies YNAB appends a period (I assume to mean it's an abbreviation)</remarks>
-        public decimal OutflowAmount => decimal.Parse(this.Outflow.Replace(this.CultureInfo.NumberFormat.CurrencySymbol, string.Empty), this.CultureInfo);
+        public decimal OutflowAmount => decimal.Parse(this.Outflow.Replace(this.RegionInfo.ISOCurrencySymbol, string.Empty), this.CultureInfo);
 
         /// <summary>
         /// Gets or sets the inflow of the transaction. If there is no inflow, it is $0.00 when using USD
@@ -110,7 +110,8 @@
         /// Gets or sets the inflow amount as a decimal
         /// </summary>
         /// <remarks>For some currencies YNAB appends a period (I assume to mean it's an abbreviation)</remarks>
-        public decimal InflowAmount => decimal.Parse(this.Inflow.Replace(this.CultureInfo.NumberFormat.CurrencySymbol, string.Empty), this.CultureInfo);
+        public decimal InflowAmount => decimal.Parse(this.Inflow.Replace(this.RegionInfo.ISOCurrencySymbol, string.Empty), this.CultureInfo);
+
 
         /// <summary>
         /// Gets or sets a value indicating whether or not the line item has any outflow
@@ -125,6 +126,10 @@
         /// <summary>
         /// Gets the culture to use when parsing the numbers
         /// </summary>
-        private CultureInfo CultureInfo { get; }
+        public CultureInfo CultureInfo { get; }
+
+        public RegionInfo RegionInfo { get; }
+
+        public string IsoCurrency => this.RegionInfo.ISOCurrencySymbol;
     }
 }

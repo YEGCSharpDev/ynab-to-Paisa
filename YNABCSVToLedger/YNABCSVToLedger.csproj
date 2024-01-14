@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <Description>Converts a YNAB-generated CSV export file into a plain text accounting ledger file compatible with ledger.</Description>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Authors>Michael Miceli</Authors>
@@ -13,13 +12,10 @@
     <PackageTags>ledger plaintextaccounting</PackageTags>
     <PackageReleaseNotes>Initial Release</PackageReleaseNotes>
   </PropertyGroup>
-
   <ItemGroup>
     <None Remove="StyleCop.Cache" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="12.1.2" />
   </ItemGroup>
-
 </Project>

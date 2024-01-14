@@ -18,12 +18,6 @@
         public string Flag { get; set; }
 
         /// <summary>
-        /// Gets or sets the check number for the line item
-        /// </summary>
-        [Name("Check Number")]
-        public string CheckNumber { get; set; }
-
-        /// <summary>
         /// Gets or sets the date the transaction occurred
         /// </summary>
         public DateTime Date { get; set; }
@@ -42,13 +36,13 @@
         /// <summary>
         /// Gets or sets the top-level category of the line item
         /// </summary>
-        [Name("Master Category")]
+        [Name("Category Group")]
         public string MasterCategory { get; set; }
 
         /// <summary>
         /// Gets or sets the specific category of the line item
         /// </summary>
-        [Name("Sub Category")]
+        [Name("Category")]
         public string SubCategory { get; set; }
 
         /// <summary>
@@ -71,10 +65,5 @@
         /// </summary>
         public string Cleared { get; set; }
 
-        /// <summary>
-        /// Gets or sets the running balance of the account
-        /// </summary>
-        [Name("Running Balance")]
-        public string RunningBalance { get; set; }
     }
 }
