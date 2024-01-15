@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33414.496
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YNABCSVToLedger", "YNABCSVToLedger\YNABCSVToLedger.csproj", "{79047F96-E8D1-4472-B82E-C7CBD12F7C8B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YNABCSVToPaisa", "YNABCSVToLedger\YNABCSVToPaisa.csproj", "{79047F96-E8D1-4472-B82E-C7CBD12F7C8B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YNABCSVToLedger.Tests", "YNABCSVToLedger.Tests\YNABCSVToLedger.Tests\YNABCSVToLedger.Tests.csproj", "{B426C8DC-88C4-4E23-B74B-715C106ADE97}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YNABCSVToPaisa.Tests", "YNABCSVToLedger.Tests\YNABCSVToLedger.Tests\YNABCSVToPaisa.Tests.csproj", "{B426C8DC-88C4-4E23-B74B-715C106ADE97}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

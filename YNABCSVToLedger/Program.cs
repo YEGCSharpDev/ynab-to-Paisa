@@ -66,10 +66,12 @@
             if (string.IsNullOrWhiteSpace(input)) {
                 input = ",";
             }
+            culture.TextInfo.ListSeparator = input;
+
 
             string delimeter = input;
             using (var reader = new StreamReader(fileName)) {
-                using (var csv = new CsvReader(reader, new Configuration() { Delimiter = delimeter })) {
+                using (var csv = new CsvReader(reader, culture)) {
                     var records = csv.GetRecords<CSVLineItem>().ToList();
 
                     IList<string> accounts = records.Select(r => r.Account).Distinct().ToList();
