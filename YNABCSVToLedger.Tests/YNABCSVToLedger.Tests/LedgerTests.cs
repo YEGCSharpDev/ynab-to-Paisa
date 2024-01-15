@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Runtime.Serialization;
+    using System.Text.RegularExpressions;
     using NUnit.Framework;
     using YNABCSVToLedger;
 
@@ -59,7 +61,7 @@
  Income:Megacorp LLC  -1,234.56 USD
 ";
 
-            Assert.AreEqual(expected, Program.CreateLedger(grouped));
+            Assert.That(Program.CreateLedger(grouped),Is.EqualTo(expected));
         }
 
         /// <summary>
@@ -95,7 +97,7 @@
  Expenses:Expenses:Groceries  42.42 USD
 ";
 
-            Assert.AreEqual(expected, Program.CreateLedger(grouped));
+            Assert.That(Program.CreateLedger(grouped),Is.EqualTo(expected));
         }
 
         /// <summary>
@@ -169,10 +171,10 @@
  Assets:Checking Account  1,234.56 USD
  Income:Megacorp LLC  -1,234.56 USD
 ";
+            Assert.That(Program.CreateLedger(transactionsNoClear), Is.EqualTo(noClearExpected));
+            Assert.That(Program.CreateLedger(transactionsWithClear), Is.EqualTo(clearExpected));
+            Assert.That(Program.CreateLedger(unclearedTransactions), Is.EqualTo(notClearExpected));
 
-            Assert.AreEqual(noClearExpected, Program.CreateLedger(transactionsNoClear));
-            Assert.AreEqual(clearExpected, Program.CreateLedger(transactionsWithClear));
-            Assert.AreEqual(notClearExpected, Program.CreateLedger(unclearedTransactions));
         }
 
         /// <summary>
@@ -209,7 +211,7 @@
  Income:Megacorp LLC  -1,234.56 USD
 ";
 
-            Assert.AreEqual(expected, Program.CreateLedger(grouped));
+            Assert.That(Program.CreateLedger(grouped),Is.EqualTo(expected));
         }
 
         /// <summary>
@@ -246,7 +248,7 @@
  Assets:Savings Account  42.42 USD
 ";
 
-            Assert.AreEqual(expected, Program.CreateLedger(grouped));
+            Assert.That(Program.CreateLedger(grouped),Is.EqualTo(expected));
         }
 
         /// <summary>
@@ -301,7 +303,7 @@
  Assets:Savings Account  42.42 USD
 ";
             string actual = Program.CreateLedger(grouped);
-            Assert.AreEqual(expected, Program.CreateLedger(grouped));
+            Assert.That(Program.CreateLedger(grouped),Is.EqualTo(expected));
         }
 
         /// <summary>
@@ -357,7 +359,7 @@
  Expenses:Every Expenses:Groceries  42.42 USD ; Meat
 ";
 
-            Assert.AreEqual(expected, Program.CreateLedger(grouped));
+            Assert.That(Program.CreateLedger(grouped),Is.EqualTo(expected));
         }
 
         /// <summary>
@@ -410,7 +412,7 @@
  Expenses:Every Expenses:Groceries  42.42 USD ; Meat
 ";
 
-            Assert.AreEqual(expected, Program.CreateLedger(grouped));
+            Assert.That(Program.CreateLedger(grouped),Is.EqualTo(expected));
         }
 
         /// <summary>
@@ -472,9 +474,10 @@
                 this.accountTypes,
                 true,
                 this.unitedStatesCulture);
-            Assert.AreEqual("This is a test", transactions[0].LineItems[0].MemoWithoutSplit);
-            Assert.IsNull(transactions[0].LineItems[1].MemoWithoutSplit);
-            Assert.AreEqual("A regular old transaction", transactions[1].LineItems[0].MemoWithoutSplit);
+
+            Assert.That(transactions[0].LineItems[0].MemoWithoutSplit, Is.EqualTo("This is a test"));
+            Assert.That(transactions[0].LineItems[1].MemoWithoutSplit, Is.Null);
+            Assert.That(transactions[1].LineItems[0].MemoWithoutSplit, Is.EqualTo("A regular old transaction"));
         }
 
         /// <summary>
@@ -526,7 +529,7 @@
  Expenses:Every Expenses:Groceries  $12.42 ; Payee: Megacorp LLC, Produce
  Expenses:Every Expenses:Groceries  $42.42 ; Payee: Microcorp LLC, Meat";
 
-            Assert.AreEqual(expected, Program.CreateLedger(grouped));
+            Assert.That(Program.CreateLedger(grouped),Is.EqualTo(expected));
         }
 
         /// <summary>
@@ -586,8 +589,8 @@
  Expenses:Every Expenses:Phone Bill  42.43 USD
 ";
             string result = Program.CreateLedger(transactions);
-            Assert.AreEqual(expected, result);
-            Assert.IsTrue(result.EndsWith(Environment.NewLine));
+            Assert.That(result, Is.EqualTo(expected));
+            Assert.That(result.EndsWith(Environment.NewLine));
         }
 
         /// <summary>
@@ -624,8 +627,8 @@
  Expenses:Dépenses journalières:Supermarché  1,304.16 EUR
 ";
 
-            string actual = Program.CreateLedger(transactions);
-            Assert.AreEqual(expected, actual);
+           string actual = Program.CreateLedger(transactions);
+           Assert.That(actual, Is.EqualTo(expected));
         }
 
         /// <summary>
@@ -665,7 +668,7 @@
  Expenses:Monthly Bills:Phone  12.48 MKD
 ";
             string actual = Program.CreateLedger(transactions);
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo(expected));
         }
     }
 }
